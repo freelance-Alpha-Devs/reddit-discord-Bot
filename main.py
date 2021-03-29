@@ -1,10 +1,6 @@
-import asyncpraw
-import requests
 import asyncio
-
+import asyncpraw
 from discord_webhook import DiscordWebhook, DiscordEmbed
-import time
-
 
 jobQueue: asyncio.Queue
 retry = 60  # retry after 1 minute
@@ -37,7 +33,7 @@ async def run_collector(reddit, restart=0):
         print("error encountered in job collector")
         print(err)
         if restart >= problemMax:
-            #print(f"waiting {retry * failExtra} seconds before retrying")
+            # print(f"waiting {retry * failExtra} seconds before retrying")
             await asyncio.sleep(retry * failExtra)  # wait more
             restart = -1
             # todo implement some reporting path and maybe exit instead of restarting
@@ -90,6 +86,7 @@ blackList = [
     "blog",
     "graphic"
 ]
+
 whiteList = [
     "programmer",
     "developer",
@@ -116,15 +113,22 @@ whiteList = [
     "js",
     "css",
     "ts",
-    "html"
+    "html",
+    "develop",
+    "programmer",
+    "blockchain",
+    "page",
+    "game",
+
 ]
+
+
 # doing the posting separately in case the
 async def job_poster():
     global jobQueue
     channel = ""
-    #print("job poster started")
+    print("job poster started")
     while True:
-
 
         item = await jobQueue.get()
         if item is None:
@@ -132,7 +136,7 @@ async def job_poster():
             break
 
         content = item["title"] + item["content"]
-        print(content)
+
         content = content.lower()
         state = False
 
@@ -143,14 +147,14 @@ async def job_poster():
 
         if state:
             for j in whiteList:
-                if content.find(j) != -1:
+                if content.find(f" {j} ") != -1:
                     state = False
                     break
 
         if not state:
-            url = 'https://discordapp.com/api/webhooks/826045724809887774/DEbM7HPU5xiEX_WZnEZ21JfTWRMWyAh6fqbgIEIbB2jEJzceEbDz89fLWvR29PDiVFlA'
+            url = 'https://discordapp.com/api/webhooks/826012159905366027/K7FZYc3ICVz9huzANY4xK0b2_8Se1Y96dZfpa-oif9C0LC2_uJn66VAeG-ju1ORmO1-t'  # programing related
         else:
-            url = 'https://discordapp.com/api/webhooks/826082363997552650/fBYM_KPyenrAvPRy_kiLAQqljbkhWNq1GxHDQ1-iDdfnJJQzN9qEHOnjcMqt6-sdRICy'
+            url = 'https://discordapp.com/api/webhooks/826082363997552650/fBYM_KPyenrAvPRy_kiLAQqljbkhWNq1GxHDQ1-iDdfnJJQzN9qEHOnjcMqt6-sdRICy'  # not related
 
         webhook = DiscordWebhook(
             url=url, )
@@ -164,6 +168,6 @@ async def job_poster():
         webhook.add_embed(embed)
         response = webhook.execute()
 
+
 if __name__ == "__main__":
     asyncio.run(main())
-
