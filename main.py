@@ -1,7 +1,7 @@
 import asyncpraw
 import requests
 import asyncio
-import configs
+
 from discord_webhook import DiscordWebhook, DiscordEmbed
 import time
 
@@ -37,7 +37,7 @@ async def run_collector(reddit, restart=0):
         print("error encountered in job collector")
         print(err)
         if restart >= problemMax:
-            print(f"waiting {retry * failExtra} seconds before retrying")
+            #print(f"waiting {retry * failExtra} seconds before retrying")
             await asyncio.sleep(retry * failExtra)  # wait more
             restart = -1
             # todo implement some reporting path and maybe exit instead of restarting
@@ -68,32 +68,100 @@ async def process_submission(submission):
 
         await jobQueue.put(data)
 
+
+blackList = [
+    "writer",
+    "video",
+    "cover",
+    "editor",
+    "editing",
+    "youtube",
+    "art",
+    "artist",
+    "excel",
+    "ad",
+    "logo",
+    "blogger",
+    "exam",
+    "translator",
+    "song",
+    "adobe",
+    "illustrator",
+    "blog",
+    "graphic"
+]
+whiteList = [
+    "programmer",
+    "developer",
+    "software",
+    "ui",
+    "app",
+    "python",
+    "py",
+    "c#",
+    "javascript",
+    "java",
+    "typescript",
+    "git",
+    "firebase",
+    "mongo",
+    "web",
+    "development",
+    "node",
+    "code",
+    "express",
+    "deno",
+    "program",
+    "script",
+    "js",
+    "css",
+    "ts",
+    "html"
+]
 # doing the posting separately in case the
 async def job_poster():
     global jobQueue
-    print("job poster started")
+    channel = ""
+    #print("job poster started")
     while True:
+
+
         item = await jobQueue.get()
         if item is None:
             # use none to break out
             break
 
-        print(f"job listed: {item}")
+        content = item["title"] + item["content"]
+        print(content)
+        content = content.lower()
+        state = False
+
+        for i in blackList:
+            if content.find(i) != -1:
+                state = True
+                break
+
+        if state:
+            for j in whiteList:
+                if content.find(j) != -1:
+                    state = False
+                    break
+
+        if not state:
+            url = 'https://discordapp.com/api/webhooks/826045724809887774/DEbM7HPU5xiEX_WZnEZ21JfTWRMWyAh6fqbgIEIbB2jEJzceEbDz89fLWvR29PDiVFlA'
+        else:
+            url = 'https://discordapp.com/api/webhooks/826082363997552650/fBYM_KPyenrAvPRy_kiLAQqljbkhWNq1GxHDQ1-iDdfnJJQzN9qEHOnjcMqt6-sdRICy'
+
         webhook = DiscordWebhook(
-            url='https://discordapp.com/api/webhooks/826045724809887774/DEbM7HPU5xiEX_WZnEZ21JfTWRMWyAh6fqbgIEIbB2jEJzceEbDz89fLWvR29PDiVFlA',)
-
-        print(item["title"])
-
-        embed = DiscordEmbed(title=item["title"], description = str(item["content"])[:1800],color='03b2f8')
-
+            url=url, )
+        # print(item["title"])
+        embed = DiscordEmbed(title=item["title"], description=str(item["content"])[:1800],
+                             color='03b2f8')
         embed.set_author(name=f'u/{item["username"]}')
-
         embed.set_timestamp()
-
-        embed.add_embed_field(name="https://reddit.com/r/forhire/comments/"+ item["id"], value="https://reddit.com/u/"+item["username"])
-
+        embed.add_embed_field(name="https://reddit.com/r/forhire/comments/" + item["id"],
+                              value="https://reddit.com/u/" + item["username"])
         webhook.add_embed(embed)
-
         response = webhook.execute()
 
 if __name__ == "__main__":
