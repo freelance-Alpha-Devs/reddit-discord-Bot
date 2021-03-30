@@ -66,6 +66,10 @@ async def on_message(message):
         if message.author.id != botId and message.author.bot:
             await message.add_reaction(discordhelp.getEmoteFromName(":green_circle:"))
             await message.add_reaction(discordhelp.getEmoteFromName(":red_circle:"))
+    if message.channel.id == reachedOutId:
+        if message.author.bot:
+            await message.add_reaction(discordhelp.getEmoteFromName(":green_circle:"))
+            await message.add_reaction(discordhelp.getEmoteFromName(":red_circle:"))
 
 
 @client.event
