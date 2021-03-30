@@ -13,6 +13,7 @@ embed.set_thumbnail(
     url="https://cdn.discordapp.com/avatars/734127694416969731/494a49a03df1d4c53d7d5c659d8328a3.png?size=128")
 embed.add_field(name="Prefix", value="The bots prefix is //", inline=False)
 embed.add_field(name="Clean messages", value="//clean, deletes a number of message that you put in, up to 50", inline=False)
+embed.add_field(name="Clean messages", value="//hardclean, deletes a number of message that you put in, no limit, preferably use //clean", inline=False)
 embed.add_field(name="Help menu", value="//help, shows this menu", inline=False)
 
 TOKEN = "NzM0MTI3Njk0NDE2OTY5NzMx.XxNLsQ.jxCFi9qI-BZ1U5-h-gmkfyudHdg"
@@ -37,17 +38,26 @@ async def on_ready():
 async def on_message(message):
     channel = client.get_channel(message.channel.id)
     text = str(message.content)
-    if message.author.bot == False and text[:6] == str(prefix + "help"):
+    text = text.split()
+    if message.author.bot == False and text[0] == str(prefix + "help"):
         await channel.send(embed=embed)
-    if message.author.bot == False and text[:7] == str(prefix + "clean"):
-        splited = text.split()
-        if len(splited) > 1:
-            number = int(splited[1])
+    if message.author.bot == False and text[0] == str(prefix + "clean"):
+        if len(text) > 1:
+            number = int(text[1])
             if number <= 50:
                 await channel.purge(limit=number)
                 await channel.send(f"```I've deleted {number} messages my dev.```")
             else:
                 await channel.send(f"```You can't delete that many messages.```")
+        else:
+            number = 10
+            await channel.purge(limit=number)
+            await channel.send(f"```I've deleted {number} messages my dev.```")
+    if message.author.bot == False and text[0] == str(prefix + "hardclean"):
+        if len(text) > 1:
+            number = int(text[1])
+            await channel.purge(limit=number)
+            await channel.send(f"```I've deleted {number} messages my dev.```")
         else:
             number = 10
             await channel.purge(limit=number)
