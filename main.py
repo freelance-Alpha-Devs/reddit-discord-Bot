@@ -7,6 +7,7 @@ retry = 60  # retry after 1 minute
 failExtra = 10  # wait 10 times the retry length after failing problemMax times
 problemMax = 20  # failing times
 
+seenPostPath = "seen.txt"
 
 async def main():
     global jobQueue
@@ -46,7 +47,7 @@ async def run_collector(reddit, restart=0):
 
 async def job_collector(reddit):
     subreddit = await reddit.subreddit("forhire")
-    async for submission in subreddit.stream.submissions():
+    async for submission in subreddit.stream.submissions(skip_existing=False):
         await process_submission(submission)
 
 
@@ -129,44 +130,62 @@ async def job_poster():
     channel = ""
     print("job poster started")
     while True:
-
         item = await jobQueue.get()
         if item is None:
             # use none to break out
             break
 
-        content = item["title"] + item["content"]
+        file = open(seenPostPath, "a+")
 
-        content = content.lower()
-        state = False
+        file.read()
 
-        for i in blackList:
-            if content.find(i) != -1:
-                state = True
-                break
+        file.seek(0)
+        readed = file.read()
 
-        if state:
-            for j in whiteList:
-                if content.find(f" {j} ") != -1:
-                    state = False
+        if readed.find(item["id"]) == -1:
+
+            file.write(item["id"] + "\n")
+
+            content = item["title"] + item["content"]
+
+            content = content.lower()
+            state = False
+
+            for i in blackList:
+                if content.find(i) != -1:
+                    state = True
                     break
 
-        if not state:
-            url = 'https://discordapp.com/api/webhooks/826012159905366027/K7FZYc3ICVz9huzANY4xK0b2_8Se1Y96dZfpa-oif9C0LC2_uJn66VAeG-ju1ORmO1-t'  # programing related
-        else:
-            url = 'https://discordapp.com/api/webhooks/826082363997552650/fBYM_KPyenrAvPRy_kiLAQqljbkhWNq1GxHDQ1-iDdfnJJQzN9qEHOnjcMqt6-sdRICy'  # not related
+            if state:
+                for j in whiteList:
+                    if content.find(f" {j} ") != -1:
+                        state = False
+                        break
 
-        webhook = DiscordWebhook(
-            url=url, )
-        # print(item["title"])
-        embed = DiscordEmbed(title=item["title"], description=str(item["content"])[:1800],
-                             color='03b2f8')
-        embed.set_author(name=f'u/{item["username"]}')
-        embed.set_timestamp()
-        embed.add_embed_field(name="https://reddit.com/r/forhire/comments/" + item["id"],
-                              value="https://reddit.com/u/" + item["username"])
-        webhook.add_embed(embed)
-        response = webhook.execute()
+            if not state:
+                url = 'https://discordapp.com/api/webhooks/826012159905366027/K7FZYc3ICVz9huzANY4xK0b2_8Se1Y96dZfpa-oif9C0LC2_uJn66VAeG-ju1ORmO1-t'  # programing related
+            else:
+                url = 'https://discordapp.com/api/webhooks/826082363997552650/fBYM_KPyenrAvPRy_kiLAQqljbkhWNq1GxHDQ1-iDdfnJJQzN9qEHOnjcMqt6-sdRICy'  # not related
+
+            webhook = DiscordWebhook(
+                url=url, )
+            #print(item["title"])
+            embed = DiscordEmbed(title=item["title"], description=str(item["content"])[:1800],
+                                 color='03b2f8')
+            embed.set_author(name=f'u/{item["username"]}')
+            embed.set_timestamp()
+            embed.add_embed_field(name="https://reddit.com/r/forhire/comments/" + item["id"],
+                                  value="https://reddit.com/u/" + item["username"])
+            webhook.add_embed(embed)
+            response = webhook.execute()
+
+        file.close()
+        with open(seenPostPath, 'r') as fin:
+            data = fin.read().splitlines(True)
+        if len(data) > 100:
+            with open(seenPostPath, 'w') as fout:
+                fout.writelines(data[1:])
+
 
 
 if __name__ == "__main__":

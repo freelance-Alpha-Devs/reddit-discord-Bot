@@ -37,7 +37,6 @@ async def on_ready():
 async def on_message(message):
     channel = client.get_channel(message.channel.id)
     text = str(message.content)
-    print(message)
     if message.author.bot == False and text[:6] == str(prefix + "help"):
         await channel.send(embed=embed)
     if message.author.bot == False and text[:7] == str(prefix + "clean"):
@@ -54,7 +53,7 @@ async def on_message(message):
             await channel.purge(limit=number)
             await channel.send(f"```I've deleted {number} messages my dev.```")
     if message.channel.id == incomingChannelID or message.channel.id == reachedOutId or message.channel.id == unrelatedId:
-        if message.author.bot:
+        if message.author.id != botId and message.author.bot:
             await message.add_reaction(discordhelp.getEmoteFromName(":green_circle:"))
             await message.add_reaction(discordhelp.getEmoteFromName(":red_circle:"))
 
