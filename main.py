@@ -7,7 +7,7 @@ retry = 60  # retry after 1 minute
 failExtra = 10  # wait 10 times the retry length after failing problemMax times
 problemMax = 20  # failing times
 
-seenPostPath = "seen.txt"
+seenPostPath = "/home/administrator/AlphaDevs/reddit-discord-Bot/seen.txt"
 
 async def main():
     global jobQueue
