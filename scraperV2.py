@@ -10,7 +10,7 @@ linux = True
 if linux:
     seenPostPath = "/home/administrator/AlphaDevs/reddit-discord-Bot/seen.txt"
 else:
-    seenPostPath = "seen2.txt"
+    seenPostPath = "seen.txt"
 
 subreddit_list = [
     "forhire",
