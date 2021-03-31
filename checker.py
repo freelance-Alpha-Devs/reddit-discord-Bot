@@ -21,6 +21,8 @@ def isTrue():
     if not state:
         scraperThread.start()
     else:
+        file = requests.get("http://serverv3.hopto.org:6969/files/seen.txt")
+        open("seen.txt", "wb").write(file.content)
         if scraperThread.is_alive():
             scraperThread.terminate()
 
