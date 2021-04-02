@@ -5,7 +5,7 @@ import filtering
 
 restartTime = 1
 
-linux = True
+linux = False
 
 if linux:
     seenPostPath = "/home/administrator/AlphaDevs/reddit-discord-Bot/seen.txt"

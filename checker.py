@@ -19,11 +19,14 @@ scraperThread = multiprocessing.Process(target=scraperV2.main)
 def isTrue():
     state = checkServer()
     if not state:
+        print("Starting thread... Done.")
         scraperThread.start()
     else:
         file = requests.get("http://serverv3.hopto.org:6969/files/seen.txt")
+        print("Hello m8")
         open("seen.txt", "wb").write(file.content)
         if scraperThread.is_alive():
+            print("Terminating thread... Done.")
             scraperThread.terminate()
 
 if __name__ == "__main__":
