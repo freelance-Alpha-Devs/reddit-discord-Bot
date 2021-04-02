@@ -23,7 +23,7 @@ def isTrue():
         scraperThread.start()
     else:
         file = requests.get("http://serverv3.hopto.org:6969/files/seen.txt")
-        print("Hello m8")
+        print("Connection found!")
         open("seen.txt", "wb").write(file.content)
         if scraperThread.is_alive():
             print("Terminating thread... Done.")
