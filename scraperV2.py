@@ -5,7 +5,7 @@ import filtering
 
 restartTime = 1
 
-linux = False
+linux = True
 
 if linux:
     seenPostPath = "/home/administrator/AlphaDevs/reddit-discord-Bot/seen.txt"
@@ -75,12 +75,13 @@ def post_job(submission, waitTime = 0):
 
     id = str(submission.id)
     title = str(submission.title)
-    content = str(submission.selftext)
+    contentOriginal = str(submission.selftext)
     author = str(submission.author)
+    timestamp = submission.created
 
     if readed.find(id) == -1:
 
-        content = title + content
+        content = title + contentOriginal
 
         content = content.lower()
         state = False
@@ -109,10 +110,13 @@ def post_job(submission, waitTime = 0):
 
         webhook = DiscordWebhook(
             url=url, )
-        embed = DiscordEmbed(title=title, description=str(content)[:1800],
+        if len(contentOriginal) > 1800:
+            contentOriginal = contentOriginal[:1800] + "..."
+
+        embed = DiscordEmbed(title=title, description=str(contentOriginal)[:1800],
                              color='03b2f8')
         embed.set_author(name=f'u/{author}')
-        embed.set_timestamp()
+        embed.set_timestamp(timestamp=timestamp)
         embed.add_embed_field(name="https://reddit.com/r/forhire/comments/" + id,
                               value="https://reddit.com/u/" + author)
         webhook.add_embed(embed)

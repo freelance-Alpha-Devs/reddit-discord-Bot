@@ -17,7 +17,16 @@ blackList = [
     "adobe",
     "illustrator",
     "blog",
-    "graphic"
+    "graphic",
+    "brand",
+    "designer",
+    "pack",
+    "manager",
+    "finance",
+    "shoes",
+    "copywriter",
+    "teacher",
+    "tutor",
 ]
 
 whiteList = [
@@ -52,5 +61,13 @@ whiteList = [
     "blockchain",
     "page",
     "game",
-
+    "site",
+    "web",
+    "website",
+    "webdeveloper",
+    "web-developer",
+    "ml",
+    "machine",
+    "learing",
+    "3d",
 ]
