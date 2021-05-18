@@ -3,7 +3,7 @@ import time
 from discord_webhook import DiscordWebhook, DiscordEmbed
 import filtering
 
-restartTime = 1
+restartTime = 5
 
 linux = True
 
@@ -41,8 +41,8 @@ def run_collector(reddit, subreddits):
         print("Error running the collector. Please take a look at the error given below. \n")
         print(error)
         log_errors(error)
-        print(f"\nWaiting {restartTime} seconds before retrying")
-        time.sleep(restartTime)
+        print(f"\nWaiting {restartTime} minutes before retrying")
+        time.sleep(restartTime*60)
 
 def log_errors(error):
     with open("debug.log", "a") as file:
@@ -61,7 +61,7 @@ def process_submission(submission):
     if title.find("[HIRING]") != -1:
         post_job(submission)
 
-def post_job(submission, waitTime = 5): #waitTime in minutes
+def post_job(submission, waitTime = restartTime): #waitTime in minutes
     print("job poster started")
 
     file = open(seenPostPath, "a+")
