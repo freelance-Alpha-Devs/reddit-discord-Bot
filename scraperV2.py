@@ -30,7 +30,8 @@ def main():
         user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:86.0) Gecko/20100101 Firefox/86.0",
         client_secret="ZC6wBk25DprOIBqjoEuTu1x7yOAD_A"
     )
-    run_collector(reddit, subreddits)
+    while True:
+        run_collector(reddit, subreddits)
 
 def run_collector(reddit, subreddits):
     print("job collector started")
@@ -60,7 +61,7 @@ def process_submission(submission):
     if title.find("[HIRING]") != -1:
         post_job(submission)
 
-def post_job(submission, waitTime = 0):
+def post_job(submission, waitTime = 5): #waitTime in minutes
     print("job poster started")
 
     file = open(seenPostPath, "a+")
@@ -125,8 +126,7 @@ def post_job(submission, waitTime = 0):
             file.write(id + "\n")
         else:
             print(f"there was an error with the webhook, waiting {waitTime} seconds")
-            time.sleep(waitTime)
-            post_job(submission, waitTime+1)
+            time.sleep(waitTime*60)
         #print("the problem is after sending the webhook")
 
     file.close()
