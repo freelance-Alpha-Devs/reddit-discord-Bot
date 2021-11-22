@@ -1,3 +1,6 @@
 /subreddits.conf
 /backups.conf
 /seen.txt
+token.conf
+/venv
+/__pycache__

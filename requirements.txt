@@ -1,0 +1,4 @@
+discord.py==1.7.3
+discordhelp==1.0.5
+praw==7.5.0
+discord-webhook==0.14.0
