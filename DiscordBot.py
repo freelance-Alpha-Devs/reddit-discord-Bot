@@ -1,7 +1,17 @@
 import discord
 import discordhelp
+import os
 
-TOKEN = "NzM0MTI3Njk0NDE2OTY5NzMx.XxNLsQ.jxCFi9qI-BZ1U5-h-gmkfyudHdg"
+
+#made for docker, if the environment variable doesn't exist use token.conf to read the bots token
+envToken = os.environ.get("BOT_TOKEN", False)
+if envToken:
+    TOKEN = envToken
+else:
+    f = open("token.conf")      #if you are not running docker, put your discord token into token.conf
+    TOKEN = f.readline()
+    f.close()
+
 prefix = "//"
 defaultRole = "Visitors"
 
@@ -15,8 +25,6 @@ embed.add_field(name="Prefix", value="The bots prefix is //", inline=False)
 embed.add_field(name="Clean messages", value="//clean, deletes a number of message that you put in, up to 50", inline=False)
 embed.add_field(name="Clean messages", value="//hardclean, deletes a number of message that you put in, no limit, preferably use //clean", inline=False)
 embed.add_field(name="Help menu", value="//help, shows this menu", inline=False)
-
-TOKEN = "NzM0MTI3Njk0NDE2OTY5NzMx.XxNLsQ.jxCFi9qI-BZ1U5-h-gmkfyudHdg"
 
 client = discord.Client()
 

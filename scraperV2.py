@@ -1,16 +1,22 @@
+from re import sub
 import praw
 import time
 from discord_webhook import DiscordWebhook, DiscordEmbed
 import filtering
+import os
 
 restartTime = 5
 
-linux = True
+seenPostPath = "seen.txt"
 
-if linux:
-    seenPostPath = "/home/administrator/AlphaDevs/reddit-discord-Bot/seen.txt"
+envToken = os.environ.get("SUBREDDIT", False)   #made for docker, if the environment variable doesn't exist use default forhire
+if envToken:
+    subreddit = envToken
 else:
-    seenPostPath = "seen.txt"
+    subreddit = "forhire"
+
+print(subreddit)
+#subreddit = "forhire"
 
 subreddit_list = [
     "forhire",
@@ -19,11 +25,12 @@ subreddit_list = [
 debug = False
 
 def main():
-    global subreddit_list
-    subreddits = ""
-    for s in subreddit_list:
-        subreddits += s + "+"
-    subreddits = subreddits[:-1]
+    global subreddit
+    #global subreddit_list
+    #subreddits = ""
+    #for s in subreddit_list:
+    #    subreddits += s + "+"
+    #subreddits = subreddits[:-1]
 
     reddit = praw.Reddit(
         client_id="AjOIfP4opzcd-w",
@@ -31,7 +38,7 @@ def main():
         client_secret="ZC6wBk25DprOIBqjoEuTu1x7yOAD_A"
     )
     while True:
-        run_collector(reddit, subreddits)
+        run_collector(reddit, subreddit)
 
 def run_collector(reddit, subreddits):
     print("job collector started")

@@ -4,3 +4,4 @@
 token.conf
 /venv
 /__pycache__
+debug.log
