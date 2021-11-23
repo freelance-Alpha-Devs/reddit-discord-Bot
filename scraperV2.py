@@ -69,6 +69,7 @@ def process_submission(submission):
         post_job(submission)
 
 def post_job(submission, waitTime = restartTime): #waitTime in minutes
+    global subreddit
     print("job poster started")
 
     file = open(seenPostPath, "a+")
@@ -125,8 +126,8 @@ def post_job(submission, waitTime = restartTime): #waitTime in minutes
                              color='03b2f8')
         embed.set_author(name=f'u/{author}')
         embed.set_timestamp(timestamp=timestamp)
-        embed.add_embed_field(name="https://reddit.com/r/forhire/comments/" + id,
-                              value="https://reddit.com/u/" + author)
+        embed.add_embed_field(name=f"https://reddit.com/r/{subreddit}/comments/{id}",
+                              value=f"https://reddit.com/u/{author}")
         webhook.add_embed(embed)
         response = webhook.execute()
         if response.status_code == 200:
