@@ -1,0 +1,11 @@
+FROM ubuntu
+
+RUN apt-get update -y
+RUN apt-get install python3.9 -y
+RUN apt-get install python3-pip -y
+
+COPY . /opt/source-code
+
+RUN pip install -r /opt/source-code/requirements.txt
+
+ENTRYPOINT python3 /opt/source-code/main.py
