@@ -4,41 +4,32 @@ import time
 from discord_webhook import DiscordWebhook, DiscordEmbed
 import filtering
 import os
+import webhookURLs
+import redditAcc
 
 restartTime = 5
-
 seenPostPath = "seen.txt"
 
-envToken = os.environ.get("SUBREDDIT", False)   #made for docker, if the environment variable doesn't exist use default forhire
-if envToken:
-    subreddit = envToken
-else:
-    subreddit = "forhire"
-
-print(subreddit)
-#subreddit = "forhire"
+# made for docker, if the environment variable doesn't exist use default forhire
+envToken = os.environ.get("SUBREDDIT", False)
+subreddit = envToken if envToken else "forhire"
 
 subreddit_list = [
     "forhire",
 ]
 
-debug = False
 
 def main():
     global subreddit
-    #global subreddit_list
-    #subreddits = ""
-    #for s in subreddit_list:
-    #    subreddits += s + "+"
-    #subreddits = subreddits[:-1]
 
     reddit = praw.Reddit(
-        client_id="AjOIfP4opzcd-w",
+        client_id=redditAcc.client_id,
         user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:86.0) Gecko/20100101 Firefox/86.0",
-        client_secret="ZC6wBk25DprOIBqjoEuTu1x7yOAD_A"
+        client_secret=redditAcc.client_secret
     )
     while True:
         run_collector(reddit, subreddit)
+
 
 def run_collector(reddit, subreddits):
     print("job collector started")
@@ -51,16 +42,19 @@ def run_collector(reddit, subreddits):
         print(f"\nWaiting {restartTime} minutes before retrying")
         time.sleep(restartTime*60)
 
+
 def log_errors(error):
     with open("debug.log", "a") as file:
         file.write(str(error.args) + "\n")
 
+
 def job_collector(reddit, subreddits):
     subreddit = reddit.subreddit(subreddits)
-    for submission in subreddit.stream.submissions(skip_existing=False):
+    for submission in subreddit.stream.submissions(skip_existing=False,):
         print("the submission found: " )
         print(submission)
         process_submission(submission)
+
 
 def process_submission(submission):
     print("submission processor started")
@@ -68,19 +62,14 @@ def process_submission(submission):
     if title.find("[HIRING]") != -1:
         post_job(submission)
 
+
 def post_job(submission, waitTime = restartTime): #waitTime in minutes
     global subreddit
     print("job poster started")
 
     file = open(seenPostPath, "a+")
-    #print("the problem is after opening the files")
-
-    file.read()
-
     file.seek(0)
     readed = file.read()
-
-    #print("the problem is after reading the file")
 
     id = str(submission.id)
     title = str(submission.title)
@@ -89,7 +78,6 @@ def post_job(submission, waitTime = restartTime): #waitTime in minutes
     timestamp = submission.created
 
     if readed.find(id) == -1:
-
         content = title + contentOriginal
 
         content = content.lower()
@@ -105,20 +93,13 @@ def post_job(submission, waitTime = restartTime): #waitTime in minutes
                 if content.find(f" {j} ") != -1:
                     state = False
                     break
-        #print("the problem is after whitelist/black list")
         if not state:
-            if not debug:
-                url = 'https://discordapp.com/api/webhooks/826012159905366027/K7FZYc3ICVz9huzANY4xK0b2_8Se1Y96dZfpa-oif9C0LC2_uJn66VAeG-ju1ORmO1-t'  # programing related
-            else:
-                url = 'https://discordapp.com/api/webhooks/826805774474674337/6lZSS3_Ht6j1XSVQqZOQ063oxaJalHoKN9Hkwq7KC6VVdbqz4dkAIS4M_HJOULBPNvWa'
+            # if the job is related to programming
+            url = webhookURLs.urls.incoming
         else:
-            if not debug:
-                url = 'https://discordapp.com/api/webhooks/826082363997552650/fBYM_KPyenrAvPRy_kiLAQqljbkhWNq1GxHDQ1-iDdfnJJQzN9qEHOnjcMqt6-sdRICy'  # not related
-            else:
-                url = 'https://discordapp.com/api/webhooks/826805774474674337/6lZSS3_Ht6j1XSVQqZOQ063oxaJalHoKN9Hkwq7KC6VVdbqz4dkAIS4M_HJOULBPNvWa'
+            url = webhookURLs.urls.incoming_unrelated
 
-        webhook = DiscordWebhook(
-            url=url, )
+        webhook = DiscordWebhook(url=url)
         if len(contentOriginal) > 1800:
             contentOriginal = contentOriginal[:1800] + "..."
 
@@ -135,18 +116,16 @@ def post_job(submission, waitTime = restartTime): #waitTime in minutes
         else:
             print(f"there was an error with the webhook, waiting {waitTime} seconds")
             time.sleep(waitTime*60)
-        #print("the problem is after sending the webhook")
 
     file.close()
     with open(seenPostPath, 'r') as fin:
         data = fin.read().splitlines(True)
     fin.close()
-    #print("the problem is after fin.close()")
     if len(data) > 100:
         with open(seenPostPath, 'w') as fout:
             fout.writelines(data[1:])
         fout.close()
-    #print("the problem is after testing length and writitng lines")
+
 
 if __name__ == "__main__":
     main()
